@@ -1,0 +1,35 @@
+chain:
+
+  name: default
+
+  members:
+
+    alice:
+
+      chaincodes:
+
+        assetmgm:
+
+          aliases:
+
+          credential:
+
+    bob:
+
+      chaincodes:
+
+        assetmgm:
+
+          aliases:
+
+          credential:
+
+    charlie:
+
+      chaincodes:
+
+        assetmgm:
+
+          aliases:
+
+          credential:
