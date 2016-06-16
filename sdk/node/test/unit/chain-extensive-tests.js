@@ -113,6 +113,8 @@ test('Chain initialization', function (t) {
         }
     });
 
+    chain.setMemberServicesUrl("grpc://localhost:40044");
+
     //
     // Configure the test chain
     //
@@ -133,6 +135,35 @@ test('Chain initialization', function (t) {
     chain.setDevMode(true);
 
     t.pass(t, "Chain initialized");
+});
+
+
+test('Setting invalid security level', function (t) {
+    t.plan(1);
+
+    var chain = hlc.getChain("testChain");
+
+    // Valid values are '256' and '384'
+    try {
+        chain.getMemberServices().setSecurityLevel(128);
+        t.fail('Setting invalid security level should fail.')
+    } catch (err) {
+        t.pass('Setting invalid security level failed as expected. ' + err)
+    }
+});
+
+test('Setting invalid hash family', function (t) {
+    t.plan(1);
+
+    var chain = hlc.getChain("testChain");
+
+    // Valid values are 'SHA2' and 'SHA3'
+    try {
+        chain.getMemberServices().setHashAlgorithm('BLA');
+        t.fail('Setting invalid hash family should fail.')
+    } catch (err) {
+        t.pass('Setting invalid hash family failed as expected. ' + err)
+    }
 });
 
 
@@ -302,7 +333,7 @@ test('Deploy a chaincode by enrolled user', function (t) {
     // Construct the invoke request
     var deployRequest = {
         // Name (hash) required for invoke
-        chaincodeID: testChaincodeID,
+        chaincodeName: testChaincodeID,
         // Function to trigger
         fcn: "init",
         // Parameters for the invoke function
@@ -343,7 +374,7 @@ test('Query existing chaincode state by enrolled user with batch size of 1', fun
     // Construct the query request
     var queryRequest = {
         // Name (hash) required for query
-        chaincodeID: testChaincodeID,
+        chaincodeName: testChaincodeID,
         // Function to trigger
         fcn: "query",
         // Existing state variable to retrieve
@@ -375,7 +406,7 @@ test('Query existing chaincode state by enrolled user with batch size of 100', f
     // Construct the query request
     var queryRequest = {
         // Name (hash) required for query
-        chaincodeID: testChaincodeID,
+        chaincodeName: testChaincodeID,
         // Function to trigger
         fcn: "query",
         // Existing state variable to retrieve
@@ -411,7 +442,7 @@ test('Query non-existing chaincode state by enrolled user', function (t) {
     // Construct the query request
     var queryRequest = {
         // Name (hash) required for query
-        chaincodeID: testChaincodeID,
+        chaincodeName: testChaincodeID,
         // Function to trigger
         fcn: "query",
         // Existing state variable to retrieve
@@ -444,7 +475,7 @@ test('Query non-existing chaincode function by enrolled user', function (t) {
     // Construct the query request
     var queryRequest = {
         // Name (hash) required for query
-        chaincodeID: testChaincodeID,
+        chaincodeName: testChaincodeID,
         // Function to trigger
         fcn: "BOGUS",
         // Existing state variable to retrieve
@@ -476,7 +507,7 @@ test('Invoke a chaincode by enrolled user', function (t) {
     // Construct the invoke request
     var invokeRequest = {
         // Name (hash) required for invoke
-        chaincodeID: testChaincodeID,
+        chaincodeName: testChaincodeID,
         // Function to trigger
         fcn: "invoke",
         // Parameters for the invoke function
@@ -506,36 +537,36 @@ test('Invoke a chaincode by enrolled user', function (t) {
     });
 });
 
-test('Invoke without specifying chaincodeID', function (t) {
-    t.plan(2);
-
-    // Construct the invoke request
-    var invokeRequest = {
-        // Function to trigger
-        fcn: "invoke",
-        // Parameters for the invoke function
-        args: ["a", "b", deltaAB]
-    };
-
-    // Trigger the invoke transaction
-    var invokeTx = test_user_Member1.invoke(invokeRequest);
-
-    // Print the invoke results
-    invokeTx.on('submitted', function (results) {
-        // Invoke transaction submitted successfully
-        t.pass("Successfully submitted chaincode invoke transaction" + " ---> " + "function: " + invokeRequest.function + ", args: " + invokeRequest.arguments + " : " + results);
-
-        // Insure the txUUID returned is not an empty string
-        if (results === "") {
-            t.fail("Invoke transaction UUID is blank" + " ---> " + "UUID : " + results);
-        } else {
-            t.pass("Invoke transaction UUID is present" + " ---> " + "UUID : " + results);
-            t.end()
-        }
-    });
-    invokeTx.on('error', function (err) {
-        // Invoke transaction submission failed
-        t.fail("Failed to submit chaincode invoke transaction" + " ---> " + "function: " + invokeRequest.function + ", args: " + invokeRequest.arguments + " : " + err);
-        t.end(err);
-    });
-});
+// test('Invoke without specifying chaincodeID', function (t) {
+//     t.plan(2);
+//
+//     // Construct the invoke request
+//     var invokeRequest = {
+//         // Function to trigger
+//         fcn: "invoke",
+//         // Parameters for the invoke function
+//         args: ["a", "b", deltaAB]
+//     };
+//
+//     // Trigger the invoke transaction
+//     var invokeTx = test_user_Member1.invoke(invokeRequest);
+//
+//     // Print the invoke results
+//     invokeTx.on('submitted', function (results) {
+//         // Invoke transaction submitted successfully
+//         t.pass("Successfully submitted chaincode invoke transaction" + " ---> " + "function: " + invokeRequest.function + ", args: " + invokeRequest.arguments + " : " + results);
+//
+//         // Insure the txUUID returned is not an empty string
+//         if (results === "") {
+//             t.fail("Invoke transaction UUID is blank" + " ---> " + "UUID : " + results);
+//         } else {
+//             t.pass("Invoke transaction UUID is present" + " ---> " + "UUID : " + results);
+//             t.end()
+//         }
+//     });
+//     invokeTx.on('error', function (err) {
+//         // Invoke transaction submission failed
+//         t.fail("Failed to submit chaincode invoke transaction" + " ---> " + "function: " + invokeRequest.function + ", args: " + invokeRequest.arguments + " : " + err);
+//         t.end(err);
+//     });
+// });
